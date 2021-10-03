@@ -1,5 +1,7 @@
 # Client Side of a full stack react-native app
 
+### Repo containing API: https://github.com/tusharb05/r-native-todo-backend
+
 ### Screenshots of the app:
 
 ![screenshot of home before sign in](./assets/screenshots/ss1.PNG)
