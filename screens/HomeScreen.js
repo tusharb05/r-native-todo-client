@@ -9,11 +9,11 @@ import {
   Modal,
   Pressable,
   FlatList,
-  Dimensions,
 } from "react-native";
 import { AuthContext, TodoContext } from "../App";
 import { AntDesign, FontAwesome } from "react-native-vector-icons";
 import { useIsFocused } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 export default function HomeScreen({ navigation }) {
   const { loggedIn, loginDetails } = useContext(AuthContext);
@@ -25,17 +25,6 @@ export default function HomeScreen({ navigation }) {
   const [todo, setTodo] = useState("");
 
   const isFocussed = useIsFocused();
-
-  // const widthOfScreen = Dimensions.get("window").width;
-  // const heightOfScreen = Dimensions.get("window").height;
-  // console.log(isFocussed);
-  // if (loggedIn) {
-  //   useFocusEffect(
-  //     useCallback(() => {
-  //       console.log("hello");
-  //     })
-  //   );
-  // }
 
   useEffect(() => {
     if (loggedIn) {
@@ -152,6 +141,8 @@ export default function HomeScreen({ navigation }) {
         if (data.status === "updated") return setTodoAdded(!todoAdded);
       });
   };
+
+  const Tab = createBottomTabNavigator();
 
   if (!loggedIn) {
     // production one: !loggedIn
@@ -303,12 +294,7 @@ export default function HomeScreen({ navigation }) {
           style={mainStyles.addBtn}
           onPress={() => setShowForm(true)}
         >
-          <AntDesign
-            name="pluscircle"
-            color="#f194ff"
-            size={40}
-            // style={mainStyles.addBtn}
-          />
+          <AntDesign name="pluscircle" color="#f194ff" size={40} />
         </TouchableOpacity>
       </View>
     );
@@ -327,10 +313,8 @@ const mainStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   singleTodo: {
-    // width: "100%",
     flex: 1,
     flexWrap: "wrap",
-    // backgroundColor: "red",
   },
   addBtn: {
     position: "absolute",
@@ -396,8 +380,10 @@ const mainStyles = StyleSheet.create({
     textAlign: "center",
   },
   modalText: {
-    marginBottom: 15,
+    marginBottom: 10,
     textAlign: "center",
+    fontSize: 26,
+    fontWeight: "700",
   },
 });
 
@@ -407,7 +393,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
     alignItems: "center",
     marginTop: 100,
-    // justifyContent: "center",
   },
   btn1: {
     backgroundColor: "#f194ff",
