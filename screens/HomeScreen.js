@@ -12,7 +12,7 @@ import {
   Dimensions,
 } from "react-native";
 import { AuthContext, TodoContext } from "../App";
-import { AntDesign } from "react-native-vector-icons";
+import { AntDesign, FontAwesome } from "react-native-vector-icons";
 import { useIsFocused } from "@react-navigation/native";
 
 export default function HomeScreen({ navigation }) {
@@ -26,8 +26,8 @@ export default function HomeScreen({ navigation }) {
 
   const isFocussed = useIsFocused();
 
-  const widthOfScreen = Dimensions.get("window").width;
-  const heightOfScreen = Dimensions.get("window").height;
+  // const widthOfScreen = Dimensions.get("window").width;
+  // const heightOfScreen = Dimensions.get("window").height;
   // console.log(isFocussed);
   // if (loggedIn) {
   //   useFocusEffect(
@@ -68,6 +68,7 @@ export default function HomeScreen({ navigation }) {
       })
         .then((res) => res.json())
         .then((data) => {
+          setTodo("");
           setTodoAdded(!todoAdded);
         });
 
@@ -75,6 +76,81 @@ export default function HomeScreen({ navigation }) {
     } else {
       Alert.alert("Fill out the fields first!");
     }
+  };
+
+  const handleDelete = (item) => {
+    fetch("http://localhost:5000/api/todo/remove", {
+      method: "POST",
+      body: JSON.stringify({
+        todoID: item._id,
+      }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "removed") {
+          console.log(data);
+          setTodos(todos.filter((x) => x._id !== item._id));
+        }
+      });
+  };
+
+  const handleComplete = (item) => {
+    fetch("http://localhost:5000/api/todo/complete", {
+      method: "POST",
+      body: JSON.stringify({
+        todoID: item._id,
+      }),
+      headers: { "Content-type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "updated") {
+          console.log(data);
+          setTodoAdded(!todoAdded);
+        }
+      });
+  };
+
+  const handleUnComplete = (item) => {
+    fetch("http://localhost:5000/api/todo/uncomplete", {
+      method: "POST",
+      body: JSON.stringify({ todoID: item._id }),
+      headers: { "Content-type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "updated") {
+          console.log(data);
+          setTodoAdded(!todoAdded);
+        }
+      });
+  };
+
+  const handleStar = (item) => {
+    fetch("http://localhost:5000/api/todo/star", {
+      method: "POST",
+      body: JSON.stringify({ todoID: item._id }),
+      headers: { "Content-type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "updated") return setTodoAdded(!todoAdded);
+      });
+  };
+
+  const handleUnStar = (item) => {
+    fetch("http://localhost:5000/api/todo/unstar", {
+      method: "POST",
+      body: JSON.stringify({ todoID: item._id }),
+      headers: { "Content-type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "updated") return setTodoAdded(!todoAdded);
+      });
   };
 
   if (!loggedIn) {
@@ -110,7 +186,72 @@ export default function HomeScreen({ navigation }) {
             data={todos}
             renderItem={({ item }) => (
               <View style={mainStyles.singleTodoView}>
-                <Text style={mainStyles.singleTodo}>{item.todo}</Text>
+                <View
+                  style={{
+                    position: "relative",
+                    right: 85,
+                    width: "100%",
+                    maxWidth: "80%",
+                  }}
+                >
+                  <Text style={mainStyles.singleTodo}>{item.todo}</Text>
+                </View>
+
+                <View
+                  style={{
+                    position: "relative",
+                    left: 50,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    alignContent: "center",
+                  }}
+                >
+                  {
+                    //asdf
+                    item.completed ? (
+                      <TouchableOpacity
+                        style={{ marginRight: 6 }}
+                        onPress={() => handleUnComplete(item)}
+                      >
+                        <AntDesign
+                          name="checkcircle"
+                          size={20}
+                          color="#57CC99"
+                        />
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        style={{ marginRight: 6 }}
+                        onPress={() => handleComplete(item)}
+                      >
+                        <AntDesign name="checkcircleo" size={20} />
+                      </TouchableOpacity>
+                    )
+                  }
+
+                  {
+                    //asdf
+                    item.starred ? (
+                      <TouchableOpacity
+                        style={{ marginRight: 6 }}
+                        onPress={() => handleUnStar(item)}
+                      >
+                        <AntDesign name="star" size={20} color="#FFB830" />
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        style={{ marginRight: 6 }}
+                        onPress={() => handleStar(item)}
+                      >
+                        <AntDesign name="staro" size={20} />
+                      </TouchableOpacity>
+                    )
+                  }
+
+                  <TouchableOpacity onPress={() => handleDelete(item)}>
+                    <FontAwesome name="trash" size={20} color="black" />
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
             keyExtractor={(item) => item._id}
@@ -175,17 +316,27 @@ export default function HomeScreen({ navigation }) {
 }
 const mainStyles = StyleSheet.create({
   singleTodoView: {
-    paddingHorizontal: 125,
+    display: "flex",
+    flexDirection: "row",
+    paddingHorizontal: 100,
+    marginHorizontal: 15,
     paddingVertical: 10,
-    backgroundColor: "#CEE5D0",
+    backgroundColor: "#B5DEFF",
     borderRadius: 10,
     marginTop: 7,
+    justifyContent: "space-between",
   },
-  singleTodo: {},
+  singleTodo: {
+    // width: "100%",
+    flex: 1,
+    flexWrap: "wrap",
+    // backgroundColor: "red",
+  },
   addBtn: {
     position: "absolute",
     bottom: 40,
     right: 10,
+    position: "fixed",
   },
   input: {
     height: 45,
