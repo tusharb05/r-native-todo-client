@@ -2,7 +2,7 @@
 
 ### Repo containing API: https://github.com/tusharb05/r-native-todo-backend
 
-### Screenshots of the app:
+## Screenshots of the app:
 
 ![screenshot of home before sign in](./assets/screenshots/ss1.PNG)
 ![screenshot of register page](./assets/screenshots/ss2.PNG)
