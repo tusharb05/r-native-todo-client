@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import {
   TouchableOpacity,
   StyleSheet,
@@ -8,11 +8,14 @@ import {
   Alert,
   Modal,
   Pressable,
+  FlatList,
+  Dimensions,
 } from "react-native";
 import { AuthContext, TodoContext } from "../App";
 import { AntDesign } from "react-native-vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 
-export default function HomeScreen({ route, navigation }) {
+export default function HomeScreen({ navigation }) {
   const { loggedIn, loginDetails } = useContext(AuthContext);
   const { todos, setTodos } = useContext(TodoContext);
   // console.log(loginDetails);
@@ -20,6 +23,19 @@ export default function HomeScreen({ route, navigation }) {
   const [showForm, setShowForm] = useState(false);
   const [todoAdded, setTodoAdded] = useState(false);
   const [todo, setTodo] = useState("");
+
+  const isFocussed = useIsFocused();
+
+  const widthOfScreen = Dimensions.get("window").width;
+  const heightOfScreen = Dimensions.get("window").height;
+  // console.log(isFocussed);
+  // if (loggedIn) {
+  //   useFocusEffect(
+  //     useCallback(() => {
+  //       console.log("hello");
+  //     })
+  //   );
+  // }
 
   useEffect(() => {
     if (loggedIn) {
@@ -34,11 +50,12 @@ export default function HomeScreen({ route, navigation }) {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
+          console.log("todos: ", data);
           setTodos(data.todos);
+          // console.log(isFocussed);
         });
     }
-  }, [todoAdded]);
+  }, [todoAdded, isFocussed]);
 
   const handleTodoSubmit = () => {
     if (todo.trim() !== "") {
@@ -88,6 +105,18 @@ export default function HomeScreen({ route, navigation }) {
   } else {
     return (
       <View style={mainStyles.container}>
+        <View style={mainStyles.todoList}>
+          <FlatList
+            data={todos}
+            renderItem={({ item }) => (
+              <View style={mainStyles.singleTodoView}>
+                <Text style={mainStyles.singleTodo}>{item.todo}</Text>
+              </View>
+            )}
+            keyExtractor={(item) => item._id}
+          />
+        </View>
+
         <Modal
           animationType="slide"
           transparent={true}
@@ -145,6 +174,14 @@ export default function HomeScreen({ route, navigation }) {
   }
 }
 const mainStyles = StyleSheet.create({
+  singleTodoView: {
+    paddingHorizontal: 125,
+    paddingVertical: 10,
+    backgroundColor: "#CEE5D0",
+    borderRadius: 10,
+    marginTop: 7,
+  },
+  singleTodo: {},
   addBtn: {
     position: "absolute",
     bottom: 40,
